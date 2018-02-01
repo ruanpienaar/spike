@@ -8,6 +8,6 @@
                   stdlib,
                   hawk
                  ]},
-  {mod, { spike_app, []}},
+  %{mod, { spike_app, []}},
   {env, []}
  ]}.
