@@ -8,6 +8,7 @@
     hard_purge/2
 ]).
 
+-spec connect_and_do(atom(), atom(), inject | purge, list(atom())) -> ok.
 connect_and_do(Node, Cookie, Action, Modules) ->
     HangingPid = self(),
     ActionFun = fun() ->
