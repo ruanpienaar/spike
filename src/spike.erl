@@ -10,6 +10,8 @@
 
 -spec connect_and_do(atom(), atom(), inject | purge, list(atom())) -> ok.
 connect_and_do(Node, Cookie, Action, Modules) ->
+    % For Escript
+    {ok, _} = application:ensure_all_started(hawk),
     HangingPid = self(),
     ActionFun = fun() ->
         case Action of 
