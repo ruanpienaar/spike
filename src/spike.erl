@@ -24,10 +24,10 @@ connect_and_do(Node, Cookie, Action, Modules) ->
     case hawk:add_node(
          Node, 
          Cookie, 
-         [{recon_injector_connect, fun() -> 
+         [{connect, fun() -> 
              ActionFun
          end}], 
-         [{recon_injector_disconnect, fun() -> 
+         [{disconnect, fun() -> 
              fun() -> io:format("Node Disconnected while attempting ~p\n", [Action]) end
          end}]
     ) of
