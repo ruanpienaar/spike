@@ -1,0 +1,13 @@
+{application, spike,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  hawk
+                 ]},
+  {mod, { spike_app, []}},
+  {env, []}
+ ]}.
