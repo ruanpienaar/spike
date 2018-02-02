@@ -29,8 +29,8 @@ connect_and_do(Node, Cookie, Action, Modules) ->
          [{connect, fun() -> 
              ActionFun
          end}], 
-         [{disconnect, fun() -> 
-             fun() -> io:format("Node Disconnected while attempting ~p\n", [Action]) end
+         [{disconnect, fun() ->
+                io:format("Node Disconnected while attempting ~p\n", [Action]) 
          end}]
     ) of
       {ok, P} -> 
@@ -49,10 +49,12 @@ connect_and_do(Node, Cookie, Action, Modules) ->
 
 do_inject(P, Node, Mods) when is_list(Mods) ->
     [ok = inject(Node, M) || M <- Mods],
+    io:format("Done injecting.............", []),
     P ! done.
 
 do_purge(P, Node, Mods) ->
     [ok = purge(Node, M) || M <- Mods],
+    io:format("Done injecting.............", []),
     P ! done.
 
 inject(Node, Module) ->
