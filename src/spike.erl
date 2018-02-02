@@ -26,7 +26,8 @@ connect_and_do(Node, Cookie, Action, Modules) ->
     case hawk:add_node(
          Node, 
          Cookie, 
-         [{connect, fun() -> 
+         [{connect, fun() ->
+             io:format("Node Connected!~n"),
              ActionFun
          end}], 
          [{disconnect, fun() ->
