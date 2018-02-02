@@ -17,10 +17,10 @@ connect_and_do(Node, Cookie, Action, Modules) ->
         case Action of 
                  inject ->
                      io:format("Injecting ...~n", []),
-                     ?MODULE:do_inject(HangingPid, Node, Modules);
+                     do_inject(HangingPid, Node, Modules);
                  purge ->
                      io:format("Purging ...~n", []),
-                     ?MODULE:do_purge(HangingPid, Node, Modules)
+                     do_purge(HangingPid, Node, Modules)
         end
     end,
     case hawk:add_node(
@@ -33,11 +33,8 @@ connect_and_do(Node, Cookie, Action, Modules) ->
              fun() -> io:format("Node Disconnected while attempting ~p\n", [Action]) end
          end}]
     ) of
-      {ok, P} ->
-          true = erlang:link(P);
-      {error,{already_started, P}} ->
-          true = erlang:link(P),
-          ActionFun()
+      {ok, P} -> 
+        true = erlang:link(P)
     end,
     receive
         done ->
