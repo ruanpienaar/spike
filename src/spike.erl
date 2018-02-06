@@ -1,62 +1,59 @@
 -module(spike).
 -export([
     connect_and_do/4,
-    do_inject/3,
+    do_inject/2,
     inject/2,
-    do_purge/3,
+    do_purge/2,
     purge/2,
     hard_purge/2
 ]).
 
 -spec connect_and_do(atom(), atom(), inject | purge, list(atom())) -> ok.
 connect_and_do(Node, Cookie, Action, Modules) ->
-    % For Escript
-    {ok, _} = application:ensure_all_started(hawk),
-    HangingPid = self(),
+    % HangingPid = self(),
+    ok = application:ensure_started(hawk),
+    true = erlang:register(?MODULE, self()),
     ActionFun = fun() ->
+        io:format("Node Connected!~n"),
         case Action of 
                  inject ->
                      io:format("Injecting ...~n", []),
-                     do_inject(HangingPid, Node, Modules);
+                     ?MODULE:do_inject(Node, Modules);
                  purge ->
                      io:format("Purging ...~n", []),
-                     do_purge(HangingPid, Node, Modules)
+                     ?MODULE:do_purge(Node, Modules)
         end
     end,
     case hawk:add_node(
-         Node, 
-         Cookie, 
-         [{connect, fun() ->
-             io:format("Node Connected!~n"),
-             ActionFun
-         end}], 
-         [{disconnect, fun() ->
-                io:format("Node Disconnected while attempting ~p\n", [Action]) 
-         end}]
+        Node, 
+        Cookie, 
+        [{connect, ActionFun}],
+        [{disconnect, fun() -> io:format("DISCONNECT ... ~p\n", []) end}]
     ) of
-      {ok, P} -> 
-        true = erlang:link(P)
+        {ok, P} -> 
+            true = erlang:link(P)
     end,
     receive
         done ->
-            io:format("~p Done ... \n", [Action]),
-            ok = hawk:remove_node(Node),
-            timer:sleep(50)
-        after 2500 ->
-            io:format("~p Timeout ... Closing ...\n", [Action]),
-            ok = hawk:remove_node(Node),
-            timer:sleep(50)
+            io:format("~p Done ... \n", [Action])
+        after 
+            2000 ->
+            io:format("~p Timeout ... Closing ...\n", [Action])
     end.
 
-do_inject(P, Node, Mods) when is_list(Mods) ->
-    [ok = inject(Node, M) || M <- Mods],
-    io:format("Done injecting.............", []),
-    P ! done.
+do_inject(Node, Mods) when is_list(Mods) ->
+    io:format("Start injection ... ~n"),
+    [ begin 
+          c:l(M),
+          io:format("Injection ~p ... ~n", [M]),
+          io:format("~p ~p.~n", [M, inject(Node, M)])
+      end || M <- Mods],
+    ?MODULE ! done.
 
-do_purge(P, Node, Mods) ->
+do_purge(Node, Mods) ->
     [ok = purge(Node, M) || M <- Mods],
-    io:format("Done injecting.............", []),
-    P ! done.
+    io:format("Done purging.............", []),
+    ?MODULE ! done.
 
 inject(Node, Module) ->
     case code:get_object_code(Module) of
