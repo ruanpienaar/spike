@@ -28,7 +28,7 @@ connect_and_do(Node, Cookie, Action, Modules) ->
         Node, 
         Cookie, 
         [{connect, ActionFun}],
-        [{disconnect, fun() -> io:format("DISCONNECT ... ~p\n", []) end}]
+        [{disconnect, fun() -> io:format("DISCONNECT ... \n", []) end}]
     ) of
         {ok, P} -> 
             true = erlang:link(P)
